@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tonalpohualli - Calendario Ritual Mexica</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=IM+Fell+English+SC&display=swap');
+
+        :root {
+            --paper: #E6D6B8;
+            --blood-red: #A62C2B;
+            --ink-black: #1A1A1A;
+            --old-gold: #D4AF37;
+            --jade: #00A86B;
+            --turquoise: #40E0D0;
+            --charcoal: #2C3E50;
+        }
+
+        body {
+            background-color: var(--paper);
+            color: var(--ink-black);
+            font-family: 'Cinzel Decorative', cursive;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+        }
+
+        /* Layout Containers */
+        .codex-container {
+            max-width: 1000px;
+            width: 100%;
+            border: 8px double var(--ink-black);
+            padding: 2rem;
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 4px;
+        }
+
+        .header-panel {
+            text-align: center;
+            border-bottom: 4px solid var(--blood-red);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .main-stage {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 2rem;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        @media (max-width: 768px) {
+            .main-stage {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            border: 3px solid var(--ink-black);
+            padding: 1rem;
+            text-align: center;
+            background: rgba(230, 214, 184, 0.9);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            background-color: var(--blood-red);
+            color: var(--paper);
+            padding: 0.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-family: 'IM Fell English SC', serif;
+            letter-spacing: 1px;
+            margin: -1rem -1rem 1rem -1rem;
+        }
+
+        .center-card {
+            transform: scale(1.05);
+            border-color: var(--blood-red);
+            border-width: 5px;
+            z-index: 10;
+        }
+
+        /* Typography */
+        h1 {
+            color: var(--blood-red);
+            font-size: 2.5rem;
+            margin: 0;
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .day-number {
+            font-size: 4rem;
+            color: var(--old-gold);
+            -webkit-text-stroke: 2px var(--ink-black);
+            margin: 0;
+            line-height: 1;
+        }
+
+        .day-name {
+            font-size: 2rem;
+            color: var(--ink-black);
+            margin: 0.5rem 0;
+        }
+
+        .detail-text {
+            font-family: 'IM Fell English SC', serif;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        /* Images */
+        .glyph-img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            filter: sepia(0.6) contrast(1.2);
+            margin-bottom: 1rem;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+
+        .center-card .glyph-img {
+            height: 300px;
+        }
+
+        /* Interactive Elements */
+        .date-picker-container {
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        input[type="date"] {
+            background: var(--paper);
+            border: 3px solid var(--ink-black);
+            padding: 0.5rem 1rem;
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 1.2rem;
+            color: var(--ink-black);
+            cursor: pointer;
+            outline: none;
+        }
+
+        input[type="date"]:hover {
+            border-color: var(--blood-red);
+        }
+
+        /* Footer & Oracle */
+        .oracle-panel {
+            margin-top: 2rem;
+            background: var(--ink-black);
+            color: var(--paper);
+            padding: 1.5rem;
+            border: 4px double var(--old-gold);
+            text-align: center;
+        }
+
+        .oracle-text {
+            font-style: italic;
+            font-size: 1.2rem;
+        }
+
+        /* Ritual Notification */
+        .ritual-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--old-gold);
+            color: var(--ink-black);
+            padding: 1rem 2rem;
+            border: 4px solid var(--blood-red);
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 100;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .ritual-toast h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--blood-red);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Loading State */
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="date-picker-container">
+        <label for="dateInput" style="font-size: 1.5rem; margin-right: 1rem;">Selecciona una fecha:</label>
+        <input type="date" id="dateInput">
+    </div>
+
+    <div class="codex-container" id="mainContainer">
+        <!-- Ritual Notification -->
+        <div id="ritualToast" class="ritual-toast">
+            <h3>¡Fecha Sagrada!</h3>
+            <p id="ritualDesc"></p>
+        </div>
+
+        <header class="header-panel">
+            <h2 id="trecenaName">Trecena de...</h2>
+            <p class="detail-text" id="trecenaRegent">Regida por...</p>
+        </header>
+
+        <div class="main-stage">
+            <!-- Left Panel: Volatile -->
+            <div class="card">
+                <div class="card-header">Volátil (Ave)</div>
+                <img id="volatileImg" class="glyph-img" src="" alt="Volátil">
+                <h3 id="volatileName">...</h3>
+                <p class="detail-text" id="volatileMeaning">...</p>
+            </div>
+
+            <!-- Center Panel: Day Sign -->
+            <div class="card center-card">
+                <div class="card-header">Día Tonalpohualli</div>
+                <div class="day-number" id="dayNumber">1</div>
+                <img id="daySignImg" class="glyph-img" src="" alt="Signo del Día">
+                <h2 class="day-name" id="dayName">Cipactli</h2>
+                <p class="detail-text" id="dayMeaning">...</p>
+                <p class="detail-text" style="color: var(--blood-red); margin-top: 0.5rem;" id="numberEnergy">...</p>
+            </div>
+
+            <!-- Right Panel: Lord of the Night -->
+            <div class="card">
+                <div class="card-header">Señor de la Noche</div>
+                <img id="lordImg" class="glyph-img" src="" alt="Señor de la Noche">
+                <h3 id="lordName">...</h3>
+                <p class="detail-text" id="lordInfluence">...</p>
+            </div>
+        </div>
+
+        <footer class="oracle-panel">
+            <h3>Oráculo del Día</h3>
+            <p class="oracle-text" id="oracleText">
+                La energía fluye y se transforma.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        /**
+         * MEXICA RITUAL CALENDAR ENGINE
+         * 
+         * Logic based on:
+         * - Correlation: Aug 13, 1521 (Julian) = 1 Coatl.
+         * - Cycle: 260 days (20 signs x 13 numbers).
+         */
+
+        // --- DATA CONSTANTS ---
+
+        const DATA_SIGNOS = [
+            { nombre: "Cipactli", significado: "Origen y abundancia.", img_url: "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cipactli_01.JPG" },
+            { nombre: "Ehecatl", significado: "Viento y espíritu.", img_url: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Ehecatl_02.JPG" },
+            { nombre: "Calli", significado: "Hogar y reposo.", img_url: "https://upload.wikimedia.org/wikipedia/commons/e/e6/Calli_03.JPG" },
+            { nombre: "Cuetzpalin", significado: "Resistencia y fecundidad.", img_url: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Cuetzpallin_04.JPG" },
+            { nombre: "Coatl", significado: "Energía vital fluyente.", img_url: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Coatl_05.JPG" },
+            { nombre: "Miquiztli", significado: "Transformación y ciclos.", img_url: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Miquiztli_06.JPG" },
+            { nombre: "Mazatl", significado: "Rapidez e intuición.", img_url: "https://upload.wikimedia.org/wikipedia/commons/8/87/Mazatl_07.JPG" },
+            { nombre: "Tochtli", significado: "Fertilidad y comunidad.", img_url: "https://upload.wikimedia.org/wikipedia/commons/2/23/Tochtli_08.JPG" },
+            { nombre: "Atl", significado: "Purificación y guerra.", img_url: "https://upload.wikimedia.org/wikipedia/commons/1/1a/Atl_09.JPG" },
+            { nombre: "Itzcuintli", significado: "Lealtad y guía.", img_url: "https://upload.wikimedia.org/wikipedia/commons/5/58/Itzcuintli_10.JPG" },
+            { nombre: "Ozomahtli", significado: "Arte y alegría.", img_url: "https://upload.wikimedia.org/wikipedia/commons/0/05/Ozomahtli_11.JPG" },
+            { nombre: "Malinalli", significado: "Tenacidad y renovación.", img_url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Malinalli_12.JPG" },
+            { nombre: "Acatl", significado: "Justicia y autoridad.", img_url: "https://upload.wikimedia.org/wikipedia/commons/0/03/Acatl_13.JPG" },
+            { nombre: "Ocelotl", significado: "Poder y noche.", img_url: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Ocelotl_14.JPG" },
+            { nombre: "Cuauhtli", significado: "Visión solar.", img_url: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Cuauhtli_15.JPG" },
+            { nombre: "Cozcacuauhtli", significado: "Sabiduría y vejez.", img_url: "https://upload.wikimedia.org/wikipedia/commons/b/b5/Cozcacuauhtli_16.JPG" },
+            { nombre: "Ollin", significado: "Movimiento y evolución.", img_url: "https://upload.wikimedia.org/wikipedia/commons/a/af/Ollin_17.JPG" },
+            { nombre: "Tecpatl", significado: "Discernimiento y corte.", img_url: "https://upload.wikimedia.org/wikipedia/commons/8/80/Tecpatl_18.JPG" },
+            { nombre: "Quiahuitl", significado: "Nutrición y tormenta.", img_url: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Quiahuitl_19.JPG" },
+            { nombre: "Xochitl", significado: "Belleza y plenitud.", img_url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Xochitl_20.JPG" }
+        ];
+
+        const DATA_NUMEROS = [
+            { numero: 1, energia: "Inicio, unidad y potencia." },
+            { numero: 2, energia: "Dualidad inestable." },
+            { numero: 3, energia: "Estabilidad doméstica." },
+            { numero: 4, energia: "Solidez corporal." },
+            { numero: 5, energia: "Exceso e intercambio." },
+            { numero: 6, energia: "Desequilibrio y prueba." },
+            { numero: 7, energia: "Misticismo y semillas." },
+            { numero: 8, energia: "Energía intensa." },
+            { numero: 9, energia: "Gestación profunda." },
+            { numero: 10, energia: "Plenitud social." },
+            { numero: 11, energia: "Fuerza superior." },
+            { numero: 12, energia: "Riqueza y vida larga." },
+            { numero: 13, energia: "Cierre y transformación total." }
+        ];
+
+        const DATA_TRECENAS = [
+            { nombre: "1 Cipactli", regente: "Tonacatecuhtli y Tonacacihuatl", significado: "Origen, creación y sustento. Buena fortuna y fertilidad.", img_query: "Tonacatecuhtli glyph" },
+            { nombre: "1 Ocelotl", regente: "Quetzalcóatl", significado: "Fieras y pruebas. Requiere penitencia para alcanzar valentía.", img_query: "Quetzalcoatl glyph" },
+            { nombre: "1 Mazatl", regente: "Tepeyollotl", significado: "Tierra y monte. Otorga nobleza pero también timidez.", img_query: "Tepeyollotl glyph" },
+            { nombre: "1 Xochitl", regente: "Huehuecoyotl", significado: "Música, danza y sexualidad. Alegría con riesgo de excesos.", img_query: "Huehuecoyotl glyph" },
+            { nombre: "1 Acatl", regente: "Chalchiuhtlicue", significado: "Autoridad inestable. Influencia del agua y el viento.", img_query: "Chalchiuhtlicue glyph" },
+            { nombre: "1 Miquiztli", regente: "Tonatiuh y Tecciztecatl", significado: "Dualidad vida/muerte. Equilibrio cósmico.", img_query: "Tonatiuh glyph" },
+            { nombre: "1 Quiahuitl", regente: "Tláloc", significado: "Lluvia y fertilidad. Nacimiento de nahuales y hechiceros.", img_query: "Tlaloc glyph" },
+            { nombre: "1 Malinalli", regente: "Mayahuel", significado: "Medicina y pulque. Destinos complicados o enredados.", img_query: "Mayahuel glyph" },
+            { nombre: "1 Coatl", regente: "Xiuhtecuhtli", significado: "Comerciantes y viajeros. Éxito y riqueza con ofrendas.", img_query: "Xiuhtecuhtli glyph" },
+            { nombre: "1 Tecpatl", regente: "Mictlantecuhtli", significado: "Guerra y sacrificio. Propicio para guerreros.", img_query: "Mictlantecuhtli glyph" },
+            { nombre: "1 Ozomatli", regente: "Patecatl", significado: "Placer, arte y medicina. Carácter alegre y vicios.", img_query: "Patecatl glyph" },
+            { nombre: "1 Cuetzpalin", regente: "Itztlacoliuhqui", significado: "Resistencia física y castigo frío. Salud y justicia.", img_query: "Itztlacoliuhqui glyph" },
+            { nombre: "1 Ollin", regente: "Tlazolteotl", significado: "Purificación, parto y transformación de lo impuro.", img_query: "Tlazolteotl glyph" },
+            { nombre: "1 Itzcuintli", regente: "Xipe Totec", significado: "Renovación mediante dolor. Buena fortuna militar.", img_query: "Xipe Totec glyph" },
+            { nombre: "1 Calli", regente: "Itzpapalotl", significado: "Mujeres guerreras y transformación. Presagios oscuros.", img_query: "Itzpapalotl glyph" },
+            { nombre: "1 Cozcacuauhtli", regente: "Xolotl", significado: "Gemelos y deformidades. Larga vida pero con rarezas.", img_query: "Xolotl glyph" },
+            { nombre: "1 Atl", regente: "Chalchiuhtotolin", significado: "Purificación e imprevisibilidad. Cambio de suerte.", img_query: "Chalchiuhtotolin glyph" },
+            { nombre: "1 Ehecatl", regente: "Chantico", significado: "Fuego doméstico y hechicería. Transformación.", img_query: "Chantico glyph" },
+            { nombre: "1 Cuauhtli", regente: "Xochiquetzal", significado: "Artes y amor. Belleza y peligro para los niños.", img_query: "Xochiquetzal glyph" },
+            { nombre: "1 Tochtli", regente: "Xiuhtecuhtli e Itztapaltotec", significado: "Cierre del ciclo. Prosperidad y abundancia.", img_query: "Xiuhtecuhtli glyph" }
+        ];
+
+        const DATA_SENORES = [
+            { deidad: "Xiuhtecuhtli", influencia: "Fuego y renovación.", img_url: "https://upload.wikimedia.org/wikipedia/commons/5/53/Xiuhtecuhtli%2C_Codex_Borgia%2C_14%2C_w_rubber_balls_offering.jpg" },
+            { deidad: "Itztli", influencia: "Justicia tajante.", img_url: "https://upload.wikimedia.org/wikipedia/commons/1/1a/Itztli_Codex_Borgia.jpg" },
+            { deidad: "Piltzintecuhtli", influencia: "Vitalidad solar.", img_url: "https://upload.wikimedia.org/wikipedia/commons/d/dc/Piltzintecuhtli.jpg" },
+            { deidad: "Cinteotl", influencia: "Sustento y trabajo.", img_url: "https://upload.wikimedia.org/wikipedia/commons/e/ea/Cinteotl_Codex_Borgia.jpg" },
+            { deidad: "Mictlantecuhtli", influencia: "Reposo y silencio.", img_url: "https://upload.wikimedia.org/wikipedia/commons/a/a2/Mictlantecuhtli_1.jpg" },
+            { deidad: "Chalchiuhtlicue", influencia: "Fluidez emocional.", img_url: "https://upload.wikimedia.org/wikipedia/commons/a/a4/Chalchiuhtlicue_2.jpg" },
+            { deidad: "Tlazolteotl", influencia: "Pasión y limpieza.", img_url: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Tlazolteotl_1.jpg" },
+            { deidad: "Tepeyollotl", influencia: "Eco interior.", img_url: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Tepeyollotl_1.jpg" },
+            { deidad: "Tlaloc", influencia: "Crecimiento rápido.", img_url: "https://upload.wikimedia.org/wikipedia/commons/9/92/Tlaloc.jpg" }
+        ];
+
+        const DATA_VOLATILES = [
+            { nombre: "Xiuhuitzilin", significado: "Guerra y renacimiento.", img_url: "https://upload.wikimedia.org/wikipedia/commons/7/77/Xiuhuitzilin_Borgia.jpg" },
+            { nombre: "Quetzalhuitzilin", significado: "Preciosidad valiente.", img_url: "https://upload.wikimedia.org/wikipedia/commons/7/70/Quetzalhuitzilin_Borgia.jpg" },
+            { nombre: "Cocotzin", significado: "Sustento y hogar.", img_url: "https://upload.wikimedia.org/wikipedia/commons/9/98/Cocotzin_Borgia.jpg" },
+            { nombre: "Zolin", significado: "Ofrenda solar.", img_url: "https://upload.wikimedia.org/wikipedia/commons/2/29/Rabbit_1.jpg" },
+            { nombre: "Cacalotl", significado: "Mensajero inteligente.", img_url: "https://upload.wikimedia.org/wikipedia/commons/0/07/Cacalotl_Borgia.jpg" },
+            { nombre: "Chicoatl", significado: "Mensajero de lo oculto.", img_url: "https://upload.wikimedia.org/wikipedia/commons/8/81/Chicuatli_Borgia.jpg" },
+            { nombre: "Papalotl", significado: "Fuego y retorno.", img_url: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Glyph_Papalotl.svg" },
+            { nombre: "Tlotli", significado: "Visión aguda.", img_url: "https://upload.wikimedia.org/wikipedia/commons/6/60/Tlotli_Borgia.jpg" },
+            { nombre: "Chalchiuhtotolin", significado: "Poder mágico.", img_url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Chalchiuhtotolin_2.jpg" },
+            { nombre: "Tecolotl", significado: "Hechicería.", img_url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Tecolotl_Borgia.jpg" },
+            { nombre: "Alotl", significado: "Fuego solar.", img_url: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Alotl_Borgia.jpg" },
+            { nombre: "Quetzaltototl", significado: "Nobleza y autoridad.", img_url: "https://upload.wikimedia.org/wikipedia/commons/d/d7/Quetzaltototl_Borgia.jpg" },
+            { nombre: "Toznene", significado: "Memoria y elocuencia.", img_url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Toznene_Borgia.jpg" }
+        ];
+
+        const DATA_FECHAS_RITUALES = [
+            { n: 1, s: "Acatl", dios: "Quetzalcóatl", desc: "Dios del viento, creador y patrono del sacerdocio.", query: "Quetzalcoatl glyph" },
+            { n: 9, s: "Ehecatl", dios: "Quetzalcóatl (Creador)", desc: "Nombre específico del creador.", query: "Ehecatl glyph" },
+            { n: 1, s: "Miquiztli", dios: "Tezcatlipoca", desc: "Dios del destino y la oscuridad.", query: "Tezcatlipoca glyph" },
+            { n: 1, s: "Tecpatl", dios: "Huitzilopochtli", desc: "Dios de la guerra y el sol.", query: "Huitzilopochtli glyph" },
+            { n: 4, s: "Ollin", dios: "Tonatiuh", desc: "El sol actual en movimiento.", query: "Tonatiuh glyph" },
+            { n: 7, s: "Coatl", dios: "Chicomecóatl", desc: "Diosa del maíz maduro.", query: "Chicomecoatl glyph" },
+            { n: 2, s: "Tochtli", dios: "Ometochtli", desc: "Deidad del pulque.", query: "Ometochtli glyph" },
+            { n: 5, s: "Xochitl", dios: "Macuilxóchitl", desc: "Dios de los juegos y la danza.", query: "Macuilxochitl glyph" },
+            { n: 1, s: "Cipactli", dios: "Tonacatecuhtli", desc: "Pareja creadora primordial.", query: "Tonacatecuhtli glyph" },
+            { n: 12, s: "Coatl", dios: "Tlahuizcalpantecuhtli", desc: "Dios de la aurora.", query: "Tlahuizcalpantecuhtli glyph" }
+        ];
+
+        // --- LOGIC ---
+
+        // Anchor Date: August 13, 1521
+        // Note: We use Julian Day count for accurate day difference
+        const ANCHOR_DATE = new Date(1521, 7, 13); // Month is 0-indexed: 7 = August
+
+        /**
+         * Calculates the number of days between two dates.
+         * @param {Date} date1 
+         * @param {Date} date2 
+         * @returns {number} Days difference (can be negative)
+         */
+        function getDaysDifference(targetDate) {
+            // Reset hours to avoid timezone issues affecting day diff
+            const t = new Date(targetDate);
+            t.setHours(0, 0, 0, 0);
+            const a = new Date(ANCHOR_DATE);
+            a.setHours(0, 0, 0, 0);
+
+            const diffTime = t - a;
+            return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        /**
+         * Main calculation function
+         */
+        const ANCHOR_YEAR = 2025;
+        const ANCHOR_MONTH = 10; // November (0-indexed)
+        const ANCHOR_DAY = 8;
+        // 3 Coatl corresponds to Global Index 184 (Trecena 1 Calli).
+        const ANCHOR_INDEX = 184;
+        const ANCHOR_LORD = 1; // Itztli (Index 1)
+
+        function calculateMexicaDate(targetDate) {
+            // 1. Calculate continuous days difference (ignoring leap years)
+            const targetYear = targetDate.getFullYear();
+            const targetMonth = targetDate.getMonth();
+            const targetDay = targetDate.getDate();
+
+            // Days in full years (flat 365)
+            const yearDiff = targetYear - ANCHOR_YEAR;
+            const daysFromYears = yearDiff * 365;
+
+            // Day of Year calculation (Local helper)
+            const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+            function getDayOfYear(y, m, d) {
+                let doy = 0;
+                for (let i = 0; i < m; i++) {
+                    doy += daysInMonth[i];
+                }
+                doy += d;
+                return doy;
+            }
+
+            const doyAnchor = getDayOfYear(ANCHOR_YEAR, ANCHOR_MONTH, ANCHOR_DAY);
+            const doyTarget = getDayOfYear(targetYear, targetMonth, targetDay);
+
+            const daysDifference = daysFromYears + (doyTarget - doyAnchor);
+
+            // 2. Tonalpohualli Index
+            let indiceGlobal = (ANCHOR_INDEX + daysDifference) % 260;
+            if (indiceGlobal < 0) indiceGlobal += 260;
+
+            const indiceSigno = indiceGlobal % 20;
+            const numero = (indiceGlobal % 13) + 1;
+            const indiceTrecena = Math.floor(indiceGlobal / 13);
+
+            // 3. Lord of the Night Index
+            let indiceSenor = (ANCHOR_LORD + daysDifference) % 9;
+            if (indiceSenor < 0) indiceSenor += 9;
+
+            const indiceVolatil = numero - 1;
+
+            return {
+                signo: DATA_SIGNOS[indiceSigno],
+                numeroInfo: DATA_NUMEROS[numero - 1],
+                trecena: DATA_TRECENAS[indiceTrecena],
+                senor: DATA_SENORES[indiceSenor],
+                volatil: DATA_VOLATILES[indiceVolatil],
+                rawNumber: numero
+            };
+        }
+
+        /**
+         * Checks if the current date is a ritual date
+         */
+        function checkRitualDate(signoName, numero) {
+            return DATA_FECHAS_RITUALES.find(r => r.s === signoName && r.n === numero);
+        }
+
+        // --- IMAGE FETCHING (WIKIMEDIA API) ---
+
+        const imageCache = {};
+
+        async function fetchWikiImage(query) {
+            if (!query) return null;
+            if (imageCache[query]) return imageCache[query];
+
+            // Fallback image (Empty pixel)
+            const fallback = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+            try {
+                const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(query)}&gsrlimit=1&prop=imageinfo&iiprop=url`;
+                const resp = await fetch(url);
+                const data = await resp.json();
+
+                if (!data.query || !data.query.pages) return fallback;
+
+                const page = Object.values(data.query.pages)[0];
+                if (page && page.imageinfo && page.imageinfo[0].url) {
+                    const imgUrl = page.imageinfo[0].url;
+                    imageCache[query] = imgUrl;
+                    return imgUrl;
+                }
+            } catch (e) {
+                console.warn("Wiki fetch failed for", query, e);
+            }
+            return fallback;
+        }
+
+        // --- UI AND INTERACTION ---
+
+        const elements = {
+            dateInput: document.getElementById('dateInput'),
+            trecenaName: document.getElementById('trecenaName'),
+            trecenaRegent: document.getElementById('trecenaRegent'),
+            volatileImg: document.getElementById('volatileImg'),
+            volatileName: document.getElementById('volatileName'),
+            volatileMeaning: document.getElementById('volatileMeaning'),
+            dayNumber: document.getElementById('dayNumber'),
+            daySignImg: document.getElementById('daySignImg'),
+            dayName: document.getElementById('dayName'),
+            dayMeaning: document.getElementById('dayMeaning'),
+            numberEnergy: document.getElementById('numberEnergy'),
+            lordImg: document.getElementById('lordImg'),
+            lordName: document.getElementById('lordName'),
+            lordInfluence: document.getElementById('lordInfluence'),
+            oracleText: document.getElementById('oracleText'),
+            ritualToast: document.getElementById('ritualToast'),
+            ritualDesc: document.getElementById('ritualDesc')
+        };
+
+        async function updateUI(dateObj) {
+            const data = calculateMexicaDate(dateObj);
+
+            // Header
+            elements.trecenaName.textContent = `Trecena de ${data.trecena.nombre}`;
+            elements.trecenaRegent.textContent = `Regida por ${data.trecena.regente}`;
+
+            // Day
+            elements.dayNumber.textContent = data.rawNumber;
+            elements.dayName.textContent = data.signo.nombre;
+            elements.dayMeaning.textContent = data.signo.significado;
+            elements.numberEnergy.textContent = `Energía ${data.rawNumber}: ${data.numeroInfo.energia}`;
+
+            // Side Panels
+            elements.volatileName.textContent = data.volatil.nombre;
+            elements.volatileMeaning.textContent = data.volatil.significado;
+
+            elements.lordName.textContent = data.senor.deidad;
+            elements.lordInfluence.textContent = data.senor.influencia;
+
+            // Oracle Logic (Simple combination for MVP)
+            elements.oracleText.textContent = `
+        "En el día ${data.rawNumber} ${data.signo.nombre}, la fuerza de ${data.senor.deidad} 
+        se encuentra con ${data.volatil.nombre}. 
+        ${data.trecena.significado}"
+    `;
+
+            // Ritual Check
+            const ritual = checkRitualDate(data.signo.nombre, data.rawNumber);
+            if (ritual) {
+                elements.ritualDesc.textContent = `${ritual.dios} - ${ritual.desc}`;
+                elements.ritualToast.style.display = 'block';
+            } else {
+                elements.ritualToast.style.display = 'none';
+            }
+
+            // Images (Async)
+            // Prioritize img_url if available, else try query
+            updateImage(elements.daySignImg, data.signo);
+            updateImage(elements.volatileImg, data.volatil);
+            updateImage(elements.lordImg, data.senor);
+        }
+
+        async function updateImage(imgElement, dataObj) {
+            imgElement.classList.add('loading');
+
+            let url = null;
+
+            // 1. Try Direct URL
+            if (dataObj.img_url) {
+                url = dataObj.img_url;
+            }
+            // 2. Try Wiki Query (Fallback)
+            else if (dataObj.img_query) {
+                url = await fetchWikiImage(dataObj.img_query);
+            }
+
+            // 3. Apply
+            if (url) {
+                imgElement.src = url;
+            } else {
+                imgElement.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+            }
+
+            imgElement.classList.remove('loading');
+        }
+
+        // Event Listeners
+        elements.dateInput.addEventListener('change', (e) => {
+            if (e.target.value) {
+                // Fix JS Date parsing issue (it reads YYYY-MM-DD as UTC)
+                // We want local date at 00:00 or noon to avoid timezone shifts
+                const parts = e.target.value.split('-');
+                const d = new Date(parts[0], parts[1] - 1, parts[2]);
+                updateUI(d);
+            }
+        });
+
+        // Initialization
+        const today = new Date();
+        elements.dateInput.valueAsDate = today;
+        updateUI(today);
+
+        // Verification Console Log
+        // Anchor: 2025-11-08 => 3 Coatl
+        const testAnchor = new Date(2025, 10, 8); // Nov 8
+        const res = calculateMexicaDate(testAnchor);
+        console.log("TEST ANCHOR (2025-11-08): Expect 3 Coatl");
+        console.log(`Result: ${res.rawNumber} ${res.signo.nombre}`);
+        if (res.rawNumber === 3 && res.signo.nombre === "Coatl") {
+            console.log("%c PASSED ", "background: green; color: white");
+        } else {
+            console.log("%c FAILED ", "background: red; color: white");
+        }
+
+    </script>
+</body>
+
+</html>
